@@ -56,5 +56,45 @@ namespace ExpensesAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut]
+        public IHttpActionResult UpdateEntry(int id, [FromBody] Entry entry)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (id != entry.Id)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                using (var context = new AppDbContext())
+                {
+                    var oldEntry = context.Entries.FirstOrDefault(n => n.Id == id);
+                    if (oldEntry == null)
+                    {
+                        return NotFound();
+                    }
+
+                    oldEntry.Description = entry.Description;
+                    oldEntry.IsExpense = entry.IsExpense;
+                    oldEntry.Value = entry.Value;
+
+
+                    context.SaveChanges();
+
+                    return Ok("Entry Updated.");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
